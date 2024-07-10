@@ -1,6 +1,5 @@
-process_bar:process_Bar.cpp process_bar.h
-	@g++ -o $@ $^
-	@./process_bar 
+process_bar:main.cpp process_bar.cpp process_bar.h
+	@g++ main.cpp process_bar.cpp process_bar.h -o main
 
 clean:
-	@rm -f process_bar
+	@rm -f main
