@@ -6,8 +6,9 @@
 using namespace std;
 
 
-const char* bar_lable="!@#$%^&*()";
+//const char* bar_lable="!@#$%^&*()";
 
+const char* bar_lable="=";
 
 void processbar()
 {

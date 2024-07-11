@@ -51,10 +51,10 @@ namespace vec
                 vector(size_t size,const T&val =T())
                 {
                     reserve(size);
-                    while(_start!=_endofstorage)
+                    while(_finish!=_endofstorage)
                     {
-                        *_start=val;
-                        _start++;
+                        *_finish=val;
+                        _finish++;
                     }
                 }
 

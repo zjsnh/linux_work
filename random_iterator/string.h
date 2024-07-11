@@ -44,6 +44,13 @@ namespace str
                 _str=nullptr;
             }
 
+
+            string& operator=(string& S)
+            {
+                swap(S);
+                return *this;
+            }
+
             typedef char* iterator;
             typedef const char* const_iterator;
 
@@ -93,7 +100,62 @@ namespace str
                 _size+=size;
 
             }
-            
+            void insert(size_t pos, char ch)
+            {
+                assert(pos > 0 && pos <= _size);
+
+                if(_size == _capacity)
+                {
+                    reserve(2*_capacity);
+                }
+
+                memmove(_str + pos + 1 , _str + pos, _size - pos);
+                _str[pos] = ch;
+                _size++;
+            }
+
+
+            void insert(size_t pos , const char* str)
+            {
+                size_t len = strlen(str);
+                assert(pos >0 && pos <= _size);
+                if( pos+len >= _capacity )
+                {
+                    reserve(pos+len);
+                }
+
+                memmove(_str+pos+len , _str+pos , _size-pos);
+                memmove(_str+pos , str , len);
+
+                _size+=len;
+            }
+
+            void erase(size_t pos,size_t len =npos)
+            {
+                assert(pos >0&& pos<=_size);
+                if(len>_size-pos)
+                {
+                    _str[pos]='\0';
+                    _size=pos;
+                }
+                else{
+                    memmove(_str + pos, _str + pos + len, _size - pos - len);
+                    _size -= len;
+                    _str[_size]='\0';
+                }
+            }
+
+            size_t find(const char* str,size_t pos=npos)
+            {
+                assert(pos>0&&pos<=_size);
+                const char* p=strstr(_str+pos,str);
+
+                if(p==nullptr)
+                    return npos;
+                else 
+                    return p-_str;
+            }
+
 
 
         private:
