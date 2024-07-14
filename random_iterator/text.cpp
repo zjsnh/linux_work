@@ -3,21 +3,52 @@
 using namespace std;
 #include"string.h"
 #include"vector.h"
-
+#include"list.h"
 
 
 int main()
 {
-    vec::vector<int> V(10,2);
-    cout<<V.capacity()<<endl;
-    V.insert(V.begin(),9);
 
-    for(auto e : V)
+    lt::list<int> l;
+    l.push_back(1);
+
+    l.push_back(1);
+    l.push_back(4);
+    l.push_back(3);
+    l.push_back(2);
+    l.push_back(1);
+    l.push_back(8);
+
+
+    for(auto e:l)
     {
-        cout<<e;
+        cout<<e<<" ";
     }
-    
     cout<<endl;
+
+    lt::list<int> l2(l);
+
+
+    for(auto e:l2)
+    {
+        cout<<e<<" ";
+    }
+    cout<<endl;
+
+
+    l2.pop_back();
+
+    l2.pop_back();
+    l2.pop_back();
+    l2.pop_back();
+    l2.pop_front();
+    for(auto e : l2)
+    {
+        cout<<e<<" ";
+    }
+    cout<<endl;
+
+
 
 
     return 0;
