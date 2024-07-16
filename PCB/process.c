@@ -2,6 +2,9 @@
 #include<unistd.h>
 int main()
 {
+
+    pid_t id=fork();
+
     while(1)
     {
         printf("process\n");
