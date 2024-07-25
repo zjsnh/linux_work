@@ -1,15 +1,15 @@
 #include<stdio.h>
 #include<unistd.h>
+#include"../Colors/colors.h"
+
 int main()
 {
 
-    pid_t id=fork();
+    int a=0;
+    printf("ENTER: ");
+    scanf("%d",&a);
 
-    while(1)
-    {
-        printf("process\n");
-        sleep(1);
-    }
-
+    printf(RED"echo %d\n"NONE,a);
+    
     return 0;
 }
