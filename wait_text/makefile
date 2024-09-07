@@ -4,5 +4,7 @@ waittext:waittext.c
 status:status_pid.c
 	gcc -std=c99 status_pid.c -o status
 
-chean:
+#PHONE:clean
+clean:
 	rm -f waittext
+	rm -f status
