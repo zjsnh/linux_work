@@ -17,6 +17,10 @@ int main()
         return 1;
     }
 
+    //cout << pipefd[0] < " " << pipefd[1] << endl;
+
+    printf("%d  %d\n", pipefd[0], pipefd[1]);
+
     id = fork();
 
     if(id == -1)
