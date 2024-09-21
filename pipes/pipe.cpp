@@ -2,50 +2,74 @@
 #include<unistd.h>
 using namespace std;
 #include<string.h>
+#include<string>
+
+void Write(int* pipefd)
+{
+    char buffer[1024];
+    string s("hello this msg is:");
+    int number = 0;
+
+    while(true)
+    {
+
+        buffer[0] = 0;
+
+        snprintf(buffer, sizeof(buffer), "%s--%d--%d", s.c_str(), getpid(), number++);
+        write(pipefd[1], buffer, strlen(buffer));
+        //cout << buffer << endl;
+
+        
+    }
+}
+
+void Read(int* pipefd)
+{
+    char buffer[1024];
+    while(true)
+    {
+        buffer[0] = 0;
+
+        ssize_t n = read(pipefd[0], buffer, sizeof(buffer));
+        if(n > 0)
+            cout << "the receive msg from : " << buffer << endl;
+        
+        sleep(3);
+    }
+}
+
 
 int main()
 {
-    int pipefd[2];
-
-    char buf[1024];
-    pid_t id;
-
-    //管道判断
-    if(pipe(pipefd) == -1)
+    int pipefd[2] = {0};
+    int n = pipe(pipefd);
+    if(n < 0)
     {
-        perror("piepe creat fail");
+        perror("pipe creat fail:");
         return 1;
     }
 
-    //cout << pipefd[0] < " " << pipefd[1] << endl;
-
-    printf("%d  %d\n", pipefd[0], pipefd[1]);
-
-    id = fork();
-
-    if(id == -1)
+    pid_t id = fork();
+    if(id < 0)
     {
-        perror("fork fail");
+        perror("fork fail:");
         return 1;
     }
     else if(id == 0)
     {
-        close(pipefd[1]);
-
-        read(pipefd[0], buf, sizeof(buf));
-        std::cout << "子进程接收到的数据: " << buf << endl;
-
+        //child
         close(pipefd[0]);
-    }
-    else{
-        close(pipefd[0]);
-        const char *msg = "hello child fork";
-        cout << "我将要传递的信息" << msg << endl;
 
-        write(pipefd[1], msg, strlen(msg));
-
+        Write(pipefd);
+        // Write;
         close(pipefd[1]);
     }
+
+    close(pipefd[1]);
+
+    Read(pipefd);
+    // Read
+    close(pipefd[0]);
 
     return 0;
 }
