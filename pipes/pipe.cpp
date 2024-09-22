@@ -23,6 +23,7 @@ void Write(int* pipefd)
     }
 }
 
+
 void Read(int* pipefd)
 {
     char buffer[1024];
@@ -31,6 +32,8 @@ void Read(int* pipefd)
         buffer[0] = 0;
 
         ssize_t n = read(pipefd[0], buffer, sizeof(buffer));
+
+        
         if(n > 0)
             cout << "the receive msg from : " << buffer << endl;
         
