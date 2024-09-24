@@ -90,11 +90,13 @@ void debug(const vector<channel>& channels){
 
 void Quslaver(const vector<channel>& channels)
 {
-    for(auto&e : channels)
-    {
-        close(e._cmdfd);
-        waitpid(e._id, nullptr, 0);
-    }
+    // for(auto&e : channels)
+    // {
+    //     close(e._cmdfd);
+    //     waitpid(e._id, nullptr, 0);
+    // }
+
+    
 }
 
 int main()
