@@ -17,11 +17,11 @@ int main()
     cout << "mkfifo_file open success" << endl;
     //通信
 
-    _log(0, "好人一生平安%s : %d",strerror(errno),errno);
-    _log(1, "好人一生平安%s : %d",strerror(errno),errno);
-    _log(2, "好人一生平安%s : %d",strerror(errno),errno);
-    _log(3, "好人一生平安%s : %d",strerror(errno),errno);
-    _log(4, "好人一生平安%s : %d",strerror(errno),errno);
+    // _log(0, "好人一生平安%s : %d",strerror(errno),errno);
+    // _log(1, "好人一生平安%s : %d",strerror(errno),errno);
+    // _log(2, "好人一生平安%s : %d",strerror(errno),errno);
+    // _log(3, "好人一生平安%s : %d",strerror(errno),errno);
+    // _log(4, "好人一生平安%s : %d",strerror(errno),errno);
     
 
     while(true)
