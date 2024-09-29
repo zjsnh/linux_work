@@ -7,8 +7,8 @@
 //#include <bits/fcntl-linux.h>  // 移除此行，避免使用内部实现头文件
 #include <fcntl.h>  // 保留标准头文件
 #include <unistd.h>
-#include <string.h>
 #include <stdio.h>
+#include <string.h>
 
 using namespace std;
 
@@ -36,7 +36,7 @@ class log
 
 
         //void log_msg(int level, char *format,...)
-        void operator()(int level, char *format,...)
+        void operator()(int level, const char *format,...)
         {
             time_t _time = time(NULL);
             struct tm * ctime = localtime(&_time);
