@@ -30,7 +30,7 @@ class log
     public:
         log()
         {
-            printMethod = Classfile;
+            printMethod = Screen;  //打印到屏幕上
             path = "./log/";
         }
 
