@@ -18,7 +18,7 @@ int main(int argc,char* argv[])
         exit(1);
     }
 
-    std::unique_ptr<Udp_server> svr(new Udp_server);
+    std::unique_ptr<Udp_server> svr(new Udp_server((uint16_t)atoi(argv[1])));
 
 
     svr->Init();

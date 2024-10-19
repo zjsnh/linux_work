@@ -5,6 +5,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <string.h>
+#include <unordered_map>
 #include "log.hpp"
 
 #define ADDR_EXIT 1
@@ -37,7 +38,7 @@ class Udp_server
             bzero(&local, sizeof(local));
 
             local.sin_family = AF_INET;
-            local.sin_port = htons(port_); // 转化为网络序列
+            local.sin_port = htons(port_);      // 转化为网络序列
             local.sin_addr.s_addr = INADDR_ANY; // 服务器端设置为 0 可以收到来自任意ip传入的消息
 
             socklen_t len = sizeof(local);
@@ -51,10 +52,46 @@ class Udp_server
             _log(Info, "server initiate success errno :%d :%s", errno, strerror(errno));
         }
 
+        void Online_User(const struct sockaddr_in& client,const string& IP,u_int16_t port)
+        {
+
+            if(clinet_ip.find(IP)==clinet_ip.end())
+            {
+                clinet_ip.insert(make_pair(IP, client));
+                _log(Info, "[%s : %d]"
+                           "User join success errno :%d :%s",
+                     IP.c_str(), port, errno, strerror(errno));
+            }
+        }
+
+        void BroadCast(const string& message,const string& IP,u_int16_t port)
+        {
+            string Forward;   //  [ip:port] : message
+            for (const auto &e : clinet_ip)
+            {
+                Forward += "[";
+                Forward += IP;
+                Forward += ":";
+                Forward += "] :";
+
+                Forward += message;
+                socklen_t len = sizeof(e.second);
+
+                sendto(sockfd, Forward.c_str(), Forward.size(), 0, (const sockaddr *)&(e.second), len);
+            }
+        }
+
         void Run()
         {
+            cout << "running !" << endl;
+
+            std::string ip ;
+            u_int16_t port;
+
             char inbuffer[SIZE];
-            while(true)
+
+            string message;
+            while (true)
             {
                 struct sockaddr_in client;
                 socklen_t len = sizeof(client);
@@ -64,16 +101,19 @@ class Udp_server
                     _log(Fatal, "recvfrom failed errno :%d :%s", errno, strerror(errno));
                     continue;
                 }
-
                 inbuffer[t] = 0;
 
-                //处理信息
-                std::string str = "server to : ";
-                str += inbuffer;
+                message = inbuffer;
 
-                cout << str << endl;
+                ip = inet_ntoa(client.sin_addr);
+                port = client.sin_port;
 
-                sendto(sockfd, str.c_str(), str.size(), 0, (const sockaddr *)&client, len);
+                Online_User(client, ip, port);   //在线用户表
+                //处理信息 转发
+
+                
+                BroadCast(message,ip,port);
+                
             }
         }
 
@@ -85,4 +125,6 @@ class Udp_server
         int sockfd;
         uint16_t port_; // 端口
         // uint32_t ip_;  // ip 地址
+
+        unordered_map<std::string, struct sockaddr_in> clinet_ip;
 };
