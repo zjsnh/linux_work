@@ -62,10 +62,13 @@ class Udp_server
                            "User join success errno :%d :%s",
                      IP.c_str(), port, errno, strerror(errno));
             }
+
+
         }
 
         void BroadCast(const string& message,const string& IP,u_int16_t port)
         {
+
             string Forward;   //  [ip:port] : message
             for (const auto &e : clinet_ip)
             {
@@ -76,7 +79,8 @@ class Udp_server
 
                 Forward += message;
                 socklen_t len = sizeof(e.second);
-
+                cout << message << endl;
+                cout << "ip : " << e.first << endl;
                 sendto(sockfd, Forward.c_str(), Forward.size(), 0, (const sockaddr *)&(e.second), len);
             }
         }

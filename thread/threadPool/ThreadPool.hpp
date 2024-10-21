@@ -1,113 +1,123 @@
 #pragma once
 
-/*所有任务都需要任务结构体，并包含
-相关函数
-    class Task
-    {
-    public:
-        const string& name();
-        void opreator()(); //如何执行
-
-        ...
-
-    }
-*/
+#include <pthread.h>
 
 #include <iostream>
 #include <vector>
-#include <string>
-#include <pthread.h>
 #include <queue>
+#include <string>
 
-static int num_ = 5;
+#define NUM 10
 
-class Thread_Info
+struct threads_
 {
-    pthread_t tid;
-    std::string name;
+    pthread_t tid_;
+    std::string name_;
 };
 
+
+//
+
 template<class T>
-class Thread_Pool
+class ThreadPool
 {
-public:
-    const string& Thread_Name(Thread_t _tid)
-    {
-        for(auto& e:thread_)
-        {
-            if(e.tid==_tid)
-            {
-                return e.name;
-            }
-        }
 
-        retrun "NONE";
-    }
-
-    Thread_Pool(int num = num_)
-        : thread_(num),
-    {
-        pthread_mutex_init(&mutex_);
-        pthread_cond_init(&cond_,NULL);
-    }
-
-    static void* Thread_Task(void* args)
-    {
-        Thread_Pool<T> *this_ = static_cast<Thread_Pool<T> *> args;
-
-        while(true)
-        {
-            pthread_mutex_lock(&mutex_);
-            while(thread_task_.empty())
-            {
-                pthread_cond_wait(&cond_, &mutex_);
-            }
-
-            T task = this_->Thread_Task_Pop;
-            cout << this_->Thread_Name << "get Taks: " << task.name() << endl;
-
-            pthread_mutex_unlock(&mutex_);
-            task();
-        }
-    }
-
-    void Thread_Run()
-    {
-        for (int i = 0; i < thread_.size(); i++)
-        {
-            thread_[i].name = "thread-" + to_string(i);
-            pthread_create(thread_[i].tid, NULL, Thread_Task, this);
-        }
-    }
-
-    void Thread_Task_Push(const T& task)
+    void lock()
     {
         pthread_mutex_lock(&mutex_);
-        thread_task_.push(task);
-        pthread_cond_signal(&cond_);
+    }
+
+    void unlock()
+    {
         pthread_mutex_unlock(&mutex_);
     }
 
-    T Thread_Task_Pop()
+    void pro_sleep()
     {
-        T task = thread_task_.front();
-        thread_task_.pop();
+        pthread_cond_wait(&cond_,&mutex_);
+    }
+
+    void wakeup()
+    {
+        pthread_cond_signal(&cond_);
+    }
+
+public:
+
+    static void* Handle_Task(void *args)   //静态函数，
+    {
+        pthread_detach(pthread_self());
+
+        ThreadPool<T> *this_ = static_cast<ThreadPool<T> *>(args);
+
+        while(true)
+        {
+            this_->lock();
+            while((this_->task_).empty())
+            {
+                this_->pro_sleep();
+            }
+
+            T task = this_->pop();
+            this_->unlock();
+
+            task();  //处理
+        }
+    }
+
+    ThreadPool(size_t num = NUM)
+        :Thread_(num)
+    {
+        pthread_mutex_init(&mutex_, NULL);
+        pthread_cond_init(&cond_, NULL);
+    }
+
+    void start()
+    {
+        int num = Thread_.size();
+        for (int i = 0; i < num; i++)
+        {
+            pthread_create(&(Thread_[i].tid_), NULL, Handle_Task, this); 
+        }
+    }
+
+
+    void Push(const T& task)
+    {
+        lock();
+        task_.push(task);
+        wakeup();
+
+        unlock();
+    }
+
+    T pop()
+    {
+        T task = task_.front();
+        task_.pop();
 
         return task;
     }
 
-    ~Thread_Pool()
+    ~ThreadPool()
     {
         pthread_mutex_destroy(&mutex_);
         pthread_cond_destroy(&cond_);
     }
 
-
-
 private:
-    std::vector<Thread_Info> thread_;
-    std::queue<T> thread_task_;
+    std::vector<threads_> Thread_;
+    std::queue<T> task_;
 
     pthread_mutex_t mutex_;
     pthread_cond_t cond_;
+
+    static ThreadPool<T> *t;
+    static pthread_mutex_t static_mutex;
 };
+
+template <class T>
+pthread_mutex_t ThreadPool<T>::static_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+template <class T>
+ThreadPool<T>* ThreadPool<T>::t = NULL;
