@@ -5,9 +5,8 @@
 
 int main()
 {
-    ThreadPool<task> t;
-
-    t.start();
+    ThreadPool<task> *tp;
+    tp->Get_pointer();
 
     return 0;
 }

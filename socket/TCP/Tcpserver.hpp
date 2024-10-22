@@ -6,6 +6,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <string.h>
+#include <signal.h>
 #include "log.hpp"
 #include "ThreadPool.hpp"
 #include "Task.hpp"
@@ -68,7 +69,8 @@ public:
 
     void Run()
     {
-        ThreadPool<task>::GetInstance()->Start();
+        signal(SIGPIPE, SIG_IGN); // 将由于写失败而导致的退出信号忽略掉
+        ThreadPool<task>::Get_pointer()->start();
         _log(Info, "server running ...");
         while(true)
         {
@@ -79,9 +81,11 @@ public:
             //创建任务
             std::string client_ip = inet_ntoa(client.sin_addr);
             uint16_t client_port = htons(client.sin_port);
+
+            _log(Info, "client connect ip: %s,port :%d", client_ip.c_str(), client_port);
             task t(sockfd, client_ip, client_port);
 
-            ThreadPool<task>::GetInstance()->Push(t);
+            ThreadPool<task>::Get_pointer()->Push(t);
         }
     }
 

@@ -1,138 +1,147 @@
 #pragma once
 
+#include <pthread.h>
+
 #include <iostream>
 #include <vector>
-#include <string>
 #include <queue>
-#include <pthread.h>
-#include <unistd.h>
+#include <string>
 
-struct ThreadInfo
+#define NUM 10
+
+struct threads_
 {
-    pthread_t tid;
-    std::string name;
+    pthread_t tid_;
+    std::string name_;
 };
 
-static const int defalutnum = 10;
 
-template <class T>
+//
+
+template<class T>
 class ThreadPool
 {
-public:
-    void Lock()
+
+    void lock()
     {
         pthread_mutex_lock(&mutex_);
     }
-    void Unlock()
+
+    void unlock()
     {
         pthread_mutex_unlock(&mutex_);
     }
-    void Wakeup()
+
+    void pro_sleep()
+    {
+        pthread_cond_wait(&cond_,&mutex_);
+    }
+
+    void wakeup()
     {
         pthread_cond_signal(&cond_);
     }
-    void ThreadSleep()
-    {
-        pthread_cond_wait(&cond_, &mutex_);
-    }
-    bool IsQueueEmpty()
-    {
-        return tasks_.empty();
-    }
-    std::string GetThreadName(pthread_t tid)
-    {
-        for (const auto &ti : threads_)
-        {
-            if (ti.tid == tid)
-                return ti.name;
-        }
-        return "None";
-    }
 
 public:
-    static void *HandlerTask(void *args)
+
+    static void* Handle_Task(void *args)   //静态函数，
     {
-        ThreadPool<T> *tp = static_cast<ThreadPool<T> *>(args);
-        std::string name = tp->GetThreadName(pthread_self());
-        while (true)
+        pthread_detach(pthread_self());
+
+        ThreadPool<T> *this_ = static_cast<ThreadPool<T> *>(args);
+
+        while(true)
         {
-            tp->Lock();
-
-            while (tp->IsQueueEmpty())
+            this_->lock();
+            while((this_->task_).empty())
             {
-                tp->ThreadSleep();
+                this_->pro_sleep();
             }
-            T t = tp->Pop();
-            tp->Unlock();
 
-            t();
+            T task = this_->pop();
+            this_->unlock();
+
+            task();  //处理
         }
     }
-    void Start()
+
+
+    void start()
     {
-        int num = threads_.size();
+        int num = Thread_.size();
         for (int i = 0; i < num; i++)
         {
-            threads_[i].name = "thread-" + std::to_string(i + 1);
-            pthread_create(&(threads_[i].tid), nullptr, HandlerTask, this);
+            pthread_create(&(Thread_[i].tid_), NULL, Handle_Task, this); 
         }
     }
-    T Pop()
+
+
+    void Push(const T& task)
     {
-        T t = tasks_.front();
-        tasks_.pop();
-        return t;
+        lock();
+        task_.push(task);
+        wakeup();
+
+        unlock();
     }
-    void Push(const T &t)
+
+    T pop()
     {
-        Lock();
-        tasks_.push(t);
-        Wakeup();
-        Unlock();
+        T task = task_.front();
+        task_.pop();
+
+        return task;
     }
-    
-    static ThreadPool<T> *GetInstance()
+
+    static ThreadPool<T>*& Get_pointer()
     {
-        if (nullptr == tp_) // ???
+        if(tp == NULL)  //如果 tp已经存在不会进行上锁
         {
-            pthread_mutex_lock(&lock_);
-            if (nullptr == tp_)
+            pthread_mutex_lock(&static_mutex);
+            if (tp == NULL)
             {
-                std::cout << "log: singleton create done first!" << std::endl;
-                tp_ = new ThreadPool<T>();
+                tp = new ThreadPool<T>();
             }
-            pthread_mutex_unlock(&lock_);
+
+            pthread_mutex_unlock(&static_mutex);
         }
 
-        return tp_;
+        return tp;
     }
+
+    
 
 private:
-    ThreadPool(int num = defalutnum) : threads_(num)
+    ThreadPool(size_t num = NUM)
+        :Thread_(num)
     {
-        pthread_mutex_init(&mutex_, nullptr);
-        pthread_cond_init(&cond_, nullptr);
+        pthread_mutex_init(&mutex_, NULL);
+        pthread_cond_init(&cond_, NULL);
     }
+
+
     ~ThreadPool()
     {
         pthread_mutex_destroy(&mutex_);
         pthread_cond_destroy(&cond_);
     }
+
     ThreadPool(const ThreadPool<T> &) = delete;
-    const ThreadPool<T> &operator=(const ThreadPool<T> &) = delete; // a=b=c
+    const ThreadPool<T> &operator=(const ThreadPool<T> &) = delete; 
 private:
-    std::vector<ThreadInfo> threads_;
-    std::queue<T> tasks_;
+
+    std::vector<threads_> Thread_;
+    std::queue<T> task_;
 
     pthread_mutex_t mutex_;
     pthread_cond_t cond_;
 
-    static ThreadPool<T> *tp_;
-    static pthread_mutex_t lock_;
+    static ThreadPool<T> *tp;
+    static pthread_mutex_t static_mutex;
 };
 
 template <class T>
-ThreadPool<T> *ThreadPool<T>::tp_ = nullptr;
+pthread_mutex_t ThreadPool<T>::static_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 template <class T>
-pthread_mutex_t ThreadPool<T>::lock_ = PTHREAD_MUTEX_INITIALIZER;
+ThreadPool<T>* ThreadPool<T>::tp = NULL;
