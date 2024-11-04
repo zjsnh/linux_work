@@ -72,9 +72,8 @@ public:
         _log(Info, "listen create success ");
     }
 
-    int Accept(uint16_t& port_ ,std::string& ip_ )
+    int Accept( struct sockaddr_in& client)
     {
-        struct sockaddr_in client;
         socklen_t len = sizeof(client);
         int sockfd = accept(listening_sockfd_, (sockaddr *)&(client), &len);
         if(sockfd < 0)

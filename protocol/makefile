@@ -2,9 +2,9 @@
 all:tcpserver tcpclient
 
 tcpserver:Main.cc
-	g++ -o $@ $^ -lpthread -std=c++11
-tcpclient:Tcpclient.cc
-	g++ -o $@ $^ -lpthread -std=c++11
+	g++ -o $@ $^  -std=c++11
+tcpclient:tcpclient.cpp
+	g++ -o $@ $^  -std=c++11
 
 
 .PHONY:clean
