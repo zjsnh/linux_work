@@ -50,7 +50,22 @@
         "ratio": "cpp",
         "system_error": "cpp",
         "thread": "cpp",
-        "regex": "cpp"
+        "regex": "cpp",
+        "codecvt": "cpp",
+        "cstddef": "cpp",
+        "algorithm": "cpp",
+        "filesystem": "cpp",
+        "iterator": "cpp",
+        "map": "cpp",
+        "memory": "cpp",
+        "memory_resource": "cpp",
+        "optional": "cpp",
+        "random": "cpp",
+        "set": "cpp",
+        "string_view": "cpp",
+        "any": "cpp",
+        "variant": "cpp"
     },
-    "C_Cpp.errorSquiggles": "enabled"
+    "C_Cpp.errorSquiggles": "enabled",
+    "cmake.sourceDirectory": "/home/zws/linux_work/Lib/bundle-master/redist/deps/libzling/build"
 }

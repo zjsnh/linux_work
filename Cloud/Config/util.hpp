@@ -14,6 +14,7 @@
 #include <memory>
 #include <vector>
 #include <experimental/filesystem>
+#include <jsoncpp/json/json.h>
 
 #include "bundle.h"
 
@@ -25,6 +26,7 @@
 
 namespace Cloud
 {
+    namespace fs = std::experimental::filesystem;   //简化
     class FileUtil
     {
     private:
@@ -220,6 +222,79 @@ namespace Cloud
                 std::cout << " uncompare SetContent false" << std::endl;
                 return false;
             }
+            return true;
+        }
+
+        bool Exists()
+        {
+            return fs::exists(_filename);
+        }
+
+        bool Remove()
+        {
+            return (bool)remove(_filename.c_str());
+        }
+
+        bool CreateDirectory()
+        {
+            if(Exists())
+            {
+                return true;
+            }
+
+            return fs::create_directory(_filename);
+        }
+
+        bool DirectoryFile(std::vector<std::string>& files)
+        {
+            for (auto &p : fs::directory_iterator(_filename))
+            {
+                if(fs::is_directory(p))
+                {
+                    continue;
+                }
+
+                files.push_back(fs::path(p).relative_path().string());   //获取相对路径的string
+            }
+
+            return true;
+        }
+    };
+
+
+    class JsonUtil
+    {
+    public:
+
+        //对root进行序列化， str输出型参数
+        static bool Serialize(const Json::Value &root, std::string *str)
+        {
+            Json::StreamWriterBuilder swb;
+            std::unique_ptr<Json::StreamWriter> sw(swb.newStreamWriter());
+
+            std::stringstream ss;
+            if(sw->write(root, &ss))
+            {
+                std::cout << "Serialize write error" << std::endl;
+                return false;
+            }
+            *str = ss.str();
+            return true;
+        }
+
+        //反序列化
+        static bool UnSerialize(const std::string &str,Json::Value* root)
+        {
+            Json::CharReaderBuilder swb;
+            std::unique_ptr<Json::CharReader> sw(swb.newCharReader());
+
+            std::string err;
+            if(sw->parse(str.c_str(), str.c_str() + str.size(), root, &err) == false)
+            {
+                std::cout << "parse error: " << err << std::endl;
+                return false;
+            }
+
             return true;
         }
     };
