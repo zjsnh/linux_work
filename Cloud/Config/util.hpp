@@ -37,7 +37,7 @@ namespace Cloud
         {}
 
         //格式时间
-        std::string FormatTime(time_t time)
+        static std::string FormatTime(time_t time)
         {
             struct tm *ctime = localtime(&time);
             std::string Mtime = std::to_string(ctime->tm_year + 1900);
@@ -78,7 +78,7 @@ namespace Cloud
                 return -1;
             }
 
-            return st.st_atime;
+            return st.st_mtime;
         }
 
         //最近修改时间
@@ -198,7 +198,7 @@ namespace Cloud
             FileUtil ut(packname);
             if(ut.SetContent(packed))
             {
-                std::cout << "compare SetContent false" << std::endl;
+                std::cout << "compare SetContent success" << std::endl;
                 return false;
             }
 
@@ -217,9 +217,9 @@ namespace Cloud
 
 
             FileUtil ut(filename);
-            if(ut.SetContent(unpacked))
+            if(ut.SetContent(unpacked) == false)
             {
-                std::cout << " uncompare SetContent false" << std::endl;
+                std::cout << " uncompare SetContent success" << ut.FileName() <<std::endl;
                 return false;
             }
             return true;

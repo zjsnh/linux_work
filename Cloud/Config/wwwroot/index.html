@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>简单的HTML页面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        p {
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        a {
+            color: blue;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>欢迎来到我的网页</h1>
+
+    <meta charset="utf-8">
+    <title>动态时钟</title>
+    <style>
+        #clock {
+            margin: 100px auto;
+            width: 400px;
+            height: 100px;
+            line-height: 100px;
+            text-align: center;
+            font: bold;
+            color: black;
+            font-size: 100px;
+        }
+    </style>
+    <script>
+        function showTime(clock) {
+            var clock = document.getElementById('clock');
+            var date = new Date(); var hours = date.getHours();
+            var minutes = date.getMinutes();
+            var seconds = date.getSeconds();
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            seconds = seconds < 10 ? '0' + seconds : seconds;
+            clock.textContent = hours + ':' + minutes + ':' + seconds;
+            clock.innerHTML = time;
+        }
+        window.onload = function () {
+            var clock = document.getElementById("clock");
+            window.setInterval("showTime(clock)", 1000);
+
+        }
+    </script>
+    </head>
+
+    <body>
+        <div id="clock"></div>
+    </body>
+
+    <p>这是一个简单的 HTML 页面示例。</p>
+    <p>你可以通过点击以下链接访问更多内容：</p>
+    <ul>
+        <li><a href="http://123.60.163.45:8888/listshow">文件</a></li>
+        <li><a href="http://123.60.163.45:8888/upload.html">文件上传</a></li>
+
+
+    </ul>
+    <p>感谢你的访问！</p>
+
+</body>
+
+</html>

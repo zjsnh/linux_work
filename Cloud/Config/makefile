@@ -1,5 +1,5 @@
-text:code.cpp bundle.o
-	g++ -o $@ $^  -std=c++11 -lstdc++fs -lpthread -ljsoncpp
+text:code.cpp
+	g++ -o $@ $^  -std=c++11 -lstdc++fs -lpthread -ljsoncpp -L./Lib -lbundle
 
 
 .PHONY:clean

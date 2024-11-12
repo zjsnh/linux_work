@@ -148,7 +148,7 @@ namespace Cloud
                 info.pack_flag = root[i]["pack_flag"].asBool();
                 info.Atime = root[i]["atime"].asInt64();
                 info.fsize = root[i]["fsize"].asInt64();
-                info.Mtime = root[i]["Mtime"].asInt64();
+                info.Mtime = root[i]["mtime"].asInt64();
 
                 info.real_path = root[i]["real_path"].asString();
                 info.pack_path = root[i]["pack_path"].asString();
@@ -186,6 +186,7 @@ namespace Cloud
             auto it = _table.find(URL);
             if (it == _table.end())
             {
+                std::cout << ":: cur" << URL << std::endl;
                 pthread_rwlock_unlock(&rwlock);
                 std::cout<<"GetOneByURL: URL void"<<std::endl;
                 return false;
