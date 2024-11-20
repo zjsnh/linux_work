@@ -4,12 +4,24 @@
 
 bool Insert(MYSQL* mysql)
 {
-      // 变量定义
+    //对于 
+    /*const char *insert_or_update_query = "INSERT INTO file_info (file_id, file_size, created_time, last_access_time, modified_time, compressed_status, file_hash) "
+                                     "VALUES ('file124', 102400, '2024-11-19 12:00:00', '2024-11-19 13:00:00', '2024-11-19 14:00:00', 1, 'abc123hashvalue') "
+                                     "ON DUPLICATE KEY UPDATE file_size = 102400, modified_time = '2024-11-19 14:00:00', compressed_status = 1, file_hash = 'abc123hashvalue'";
+
+    if (mysql_query(conn, insert_or_update_query)) {
+        std::cerr << "INSERT/UPDATE failed: " << mysql_error(conn) << "\n";
+    } else {
+        std::cout << "Record inserted or updated successfully\n";
+    }*/
+
+
+    // 变量定义
     std::string file_id = "file124";
     std::string file_size = "102400";
     std::string created_time = "2024-11-19 12:00:00";
     std::string last_access_time = "2024-11-19 13:00:00";
-    std::string modified_time = "2024-11-19 14:00:00";
+    std::string modified_time = "2024-11-1 12:00:00";
     int compressed_status = 1;  // 假设1表示压缩状态
     std::string file_hash = "abc123hashvalue";
 
@@ -23,7 +35,10 @@ bool Insert(MYSQL* mysql)
                                + std::to_string(compressed_status) + ", '" 
                                + file_hash + "')";
 
-    mysql_query(mysql, insert_query.c_str());
+    if(mysql_query(mysql, insert_query.c_str()))
+    {
+        std::cerr << "Result storing failed: " << mysql_error(mysql) << "\n";
+    }
 
     return true;
 }
@@ -85,7 +100,7 @@ int main()
         return 2;
     }
 
-    std::cout << Select(mysql) << std::endl;
+    std::cout << Insert(mysql) << std::endl;
 
     return 0;
 }
