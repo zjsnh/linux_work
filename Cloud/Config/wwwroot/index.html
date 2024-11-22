@@ -4,79 +4,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>简单的HTML页面</title>
+    <title>简易云盘</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
+            font-family: "Arial", sans-serif;
+            line-height: 1.6;
+            background: #f7f7f7;
+            color: #333;
+            padding: 40px 20px;
         }
 
         h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-align: center;
             color: #333;
         }
 
         p {
-            font-size: 16px;
-            line-height: 1.5;
+            font-size: 1rem;
+            text-align: center;
+            margin-bottom: 40px;
+            color: #555;
+        }
+
+        ul {
+            list-style: none;
+            padding-left: 0;
+            display: block;
+            text-align: center;
+        }
+
+        li {
+            margin: 15px 0;
         }
 
         a {
-            color: blue;
+            display: block;
+            padding: 15px;
+            font-size: 1.1rem;
+            color: #fff;
+            background: linear-gradient(45deg, #6a95e2, #4e74d4);
+            text-align: center;
+            text-decoration: none;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: background 0.3s, transform 0.2s, box-shadow 0.3s;
+        }
+
+        a:hover {
+            background: linear-gradient(45deg, #4e74d4, #6a95e2);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        footer {
+            text-align: center;
+            font-size: 0.9rem;
+            margin-top: 50px;
+            color: #888;
         }
     </style>
 </head>
 
 <body>
-    <h1>欢迎来到我的网页</h1>
 
-    <meta charset="utf-8">
-    <title>动态时钟</title>
-    <style>
-        #clock {
-            margin: 100px auto;
-            width: 400px;
-            height: 100px;
-            line-height: 100px;
-            text-align: center;
-            font: bold;
-            color: black;
-            font-size: 100px;
-        }
-    </style>
-    <script>
-        function showTime(clock) {
-            var clock = document.getElementById('clock');
-            var date = new Date(); var hours = date.getHours();
-            var minutes = date.getMinutes();
-            var seconds = date.getSeconds();
-            minutes = minutes < 10 ? '0' + minutes : minutes;
-            seconds = seconds < 10 ? '0' + seconds : seconds;
-            clock.textContent = hours + ':' + minutes + ':' + seconds;
-            clock.innerHTML = time;
-        }
-        window.onload = function () {
-            var clock = document.getElementById("clock");
-            window.setInterval("showTime(clock)", 1000);
+    <h1>简易云盘</h1>
+    <p>在这里你可以查看文件、上传文件以及切换用户。</p>
 
-        }
-    </script>
-    </head>
-
-    <body>
-        <div id="clock"></div>
-    </body>
-
-    <p>这是一个简单的 HTML 页面示例。</p>
-    <p>你可以通过点击以下链接访问更多内容：</p>
     <ul>
-        <li><a href="http://123.60.163.45:8888/listshow">文件</a></li>
+        <li><a href="http://123.60.163.45:8888/listshow">查看文件</a></li>
         <li><a href="http://123.60.163.45:8888/upload.html">文件上传</a></li>
-
-        <li><a href="http://123.60.163.45:8888/login.html">登录</a></li>
-
-
+        <li><a href="http://123.60.163.45:8888/login.html">切换用户</a></li>
     </ul>
-    <p>感谢你的访问！</p>
+
+    <footer>
+        <p>感谢你的访问！</p>
+    </footer>
 
 </body>
 

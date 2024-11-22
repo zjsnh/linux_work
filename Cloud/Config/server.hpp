@@ -22,8 +22,8 @@ namespace Cloud
         std::string url_prefix_;
         std::string download_prefix_;
         httplib::Server svr_;
-        
-         // 根据文件扩展名获取 MIME 类型
+
+        // 根据文件扩展名获取 MIME 类型
         static std::string GetMimeType(const std::string &path) {
             static const std::unordered_map<std::string, std::string> mime_types = {
                 {".html", "text/html"},
@@ -69,39 +69,9 @@ namespace Cloud
             return;
         }
 
-        static std::string UserName(const httplib::Request& req) 
-        {
-            std::unordered_map<std::string, std::string> cookies;
-            std::string cookie = req.get_header_value("Cookie");
-
-            std::cout << cookie << std::endl;
-
-            size_t pos = 0, idx = 0;
-            std::string sep = ";";
-            while (true)
-            {
-                pos = cookie.find(";", idx);
-                if (pos == std::string::npos)
-                    break;
-
-                std::string _str = cookie.substr(idx, pos);
-                size_t pos_ = _str.find("=");
-                cookies[_str.substr(0, pos_)] = _str.substr(pos_ + 1);
-
-                cookie = cookie.substr(pos + 2);
-            }
-            if (cookie.empty() == false)
-            {
-                size_t pos_ = cookie.find("=");
-                cookies[cookie.substr(0, pos_)] = cookie.substr(pos_ + 1);
-            }
-
-            return cookies["username"];
-        }
-
         static void Upload(const httplib::Request& req,httplib::Response& res)
         {
-            if(Usr::cookie_verify(req,res))
+            if(cookie::cookie_verify(req,res))
                 return;
 
             
@@ -120,7 +90,7 @@ namespace Cloud
 
             BackupInfo info;
             info.NewBackupInfo(realpath);
-            data->Insert(info,UserName(req));
+            data->Insert(info,cookie::get_cookie(req,"username"));
 
             std::cout << "Upload success!" << fu.FileName() << std::endl;
 
@@ -133,7 +103,7 @@ namespace Cloud
             //     return;
             
             std::vector<BackupInfo> arry;
-            data->GetAll(&arry,UserName(req));
+            data->GetAll(&arry,cookie::get_cookie(req,"username"));
 
             //2. 根据所有备份信息，组织html文件数据
             std::stringstream ss;
@@ -160,7 +130,7 @@ namespace Cloud
 
         static void index(const httplib::Request& req,httplib::Response& res)
         {
-            if(Usr::cookie_verify(req,res))
+            if(cookie::cookie_verify(req,res))
                 return;
             std::string file_path = wwwroot + req.path;
 
@@ -200,7 +170,7 @@ namespace Cloud
 
         static void Download(const httplib::Request& req,httplib::Response& res)
         {
-            if(Usr::cookie_verify(req,res))
+            if(cookie::cookie_verify(req,res))
                 return;
 
             BackupInfo info;
@@ -263,7 +233,7 @@ namespace Cloud
             std::string username = req.get_param_value("username");
             std::string password = req.get_param_value("password");
 
-            if(Usr::verify(username,password))
+            if(cookie::verify(username,password))
             {
                 // 设置 Cookie
                 std::string cookie_username = "username=" + username;
@@ -271,10 +241,13 @@ namespace Cloud
 
                 res.set_header("Set-Cookie", cookie_password);
                 res.set_header("Set-Cookie", cookie_username);
-               
 
-                // 返回成功响应
-                res.set_content("success", "text/plain");
+                std::string url = "http://123.60.163.45:8888";
+
+                res.set_header("Location", url + cookie::get_cookie(req, "cookie_path"));
+                res.status = 302;
+                // // 返回成功响应
+                // res.set_content("success", "text/plain");
                 return;
             }
 

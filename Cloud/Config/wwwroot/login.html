@@ -2,11 +2,9 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>用户登录</title>
-    <link rel="stylesheet" href="style_login.css">
 </head>
 
 <body>
@@ -24,6 +22,147 @@
             <button type="submit" class="login-button">登录</button>
         </form>
     </div>
+
+    <!-- 添加JavaScript代码 -->
+    <script>
+        // 监听鼠标移动事件
+        document.addEventListener("mousemove", function (event) {
+            const tail = document.createElement("div");
+            tail.classList.add("mouse-tail");
+            document.body.appendChild(tail);
+
+            const x = event.clientX;
+            const y = event.clientY;
+
+            // 设置拖尾的位置
+            tail.style.left = `${x - 5}px`;
+            tail.style.top = `${y - 5}px`;
+
+            // 移除拖尾效果
+            setTimeout(() => {
+                tail.remove();
+            }, 1000);  // 根据需要调整尾巴的持续时间
+        });
+    </script>
 </body>
+
+
+<style>
+    /* 全局样式 */
+    body {
+        font-family: 'Arial', sans-serif;
+        margin: 0;
+        padding: 0;
+        background: linear-gradient(45deg, #e4c4e1, #e9eaed);
+        background-size: 400% 400%;
+        animation: gradientAnimation 10s ease infinite;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        color: #333333;
+    }
+
+    /* 动态背景渐变动画 */
+    @keyframes gradientAnimation {
+        0% {
+            background-position: 0% 50%;
+        }
+
+        50% {
+            background-position: 100% 50%;
+        }
+
+        100% {
+            background-position: 0% 50%;
+        }
+    }
+
+    /* 登录容器 */
+    .login-container {
+        background-color: rgba(255, 255, 255, 0.9);
+        /* 半透明白色背景 */
+        padding: 25px 35px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        width: 100%;
+        max-width: 400px;
+        text-align: center;
+    }
+
+    /* 标题样式 */
+    .login-container h1 {
+        font-size: 26px;
+        margin-bottom: 20px;
+        color: #4a4a4a;
+        font-weight: bold;
+    }
+
+    /* 表单样式 */
+    .form-group {
+        margin-bottom: 20px;
+        text-align: left;
+    }
+
+    label {
+        font-size: 14px;
+        color: #4a4a4a;
+    }
+
+    input {
+        width: 100%;
+        padding: 12px 15px;
+        font-size: 14px;
+        border: 2px solid #cccccc;
+        border-radius: 6px;
+        box-sizing: border-box;
+        outline: none;
+        transition: all 0.3s ease;
+    }
+
+    input:focus {
+        border-color: #6a11cb;
+        box-shadow: 0 0 5px rgba(106, 17, 203, 0.5);
+    }
+
+    /* 按钮样式 */
+    .login-button {
+        width: 100%;
+        padding: 12px 15px;
+        background-color: #e4daef;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .login-button:hover {
+        background-color: #2575fc;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(37, 117, 252, 0.4);
+    }
+
+    /* 响应式设计 */
+    @media (max-width: 480px) {
+        .login-container {
+            padding: 20px 25px;
+        }
+
+        .login-container h1 {
+            font-size: 22px;
+        }
+
+        input {
+            font-size: 13px;
+        }
+
+        .login-button {
+            font-size: 14px;
+        }
+    }
+</style>
 
 </html>
