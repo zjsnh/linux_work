@@ -3,6 +3,7 @@
 #include "data.hpp"
 #include "httplib.h"
 #include "config.hpp" 
+#include "usr.hpp"
 extern Cloud::DataManager *data;
 
 namespace Cloud
@@ -48,8 +49,6 @@ namespace Cloud
 
     public:
 
-       
-
         Server()
         {
             Config *con = Config::GetInstance();
@@ -70,8 +69,42 @@ namespace Cloud
             return;
         }
 
+        static std::string UserName(const httplib::Request& req) 
+        {
+            std::unordered_map<std::string, std::string> cookies;
+            std::string cookie = req.get_header_value("Cookie");
+
+            std::cout << cookie << std::endl;
+
+            size_t pos = 0, idx = 0;
+            std::string sep = ";";
+            while (true)
+            {
+                pos = cookie.find(";", idx);
+                if (pos == std::string::npos)
+                    break;
+
+                std::string _str = cookie.substr(idx, pos);
+                size_t pos_ = _str.find("=");
+                cookies[_str.substr(0, pos_)] = _str.substr(pos_ + 1);
+
+                cookie = cookie.substr(pos + 2);
+            }
+            if (cookie.empty() == false)
+            {
+                size_t pos_ = cookie.find("=");
+                cookies[cookie.substr(0, pos_)] = cookie.substr(pos_ + 1);
+            }
+
+            return cookies["username"];
+        }
+
         static void Upload(const httplib::Request& req,httplib::Response& res)
         {
+            if(Usr::cookie_verify(req,res))
+                return;
+
+            
             auto ret = req.has_file("file");
             if(ret = false)
             {
@@ -87,7 +120,7 @@ namespace Cloud
 
             BackupInfo info;
             info.NewBackupInfo(realpath);
-            data->Insert(info);
+            data->Insert(info,UserName(req));
 
             std::cout << "Upload success!" << fu.FileName() << std::endl;
 
@@ -96,8 +129,11 @@ namespace Cloud
 
         static void ListShow(const httplib::Request& req,httplib::Response& res)
         {
+            // if(Usr::cookie_verify(req,res))
+            //     return;
+            
             std::vector<BackupInfo> arry;
-            data->GetAll(&arry);
+            data->GetAll(&arry,UserName(req));
 
             //2. 根据所有备份信息，组织html文件数据
             std::stringstream ss;
@@ -114,15 +150,18 @@ namespace Cloud
 					ss << "<td align='right'>" << a.fsize / 1024 << "k</td>";
 					ss << "</tr>";
 				}
-				ss << "</table></body></html>";
-				res.body = ss.str();
-				res.set_header("Content-Type", "text/html");
-				res.status = 200;
-				return ;
+            ss << "</table></body></html>";
+            res.body = ss.str();
+            res.set_header("Content-Type", "text/html");
+            res.status = 200;
+            return ;
+
         }
 
         static void index(const httplib::Request& req,httplib::Response& res)
         {
+            if(Usr::cookie_verify(req,res))
+                return;
             std::string file_path = wwwroot + req.path;
 
             if (file_path == wwwroot + "/") {
@@ -146,6 +185,7 @@ namespace Cloud
             std::string mime_type = GetMimeType(file_path);
             res.set_content(body, mime_type);
         }
+
         static std::string GetETag(const BackupInfo& info)
         {
             FileUtil fu(info.real_path);
@@ -160,6 +200,8 @@ namespace Cloud
 
         static void Download(const httplib::Request& req,httplib::Response& res)
         {
+            if(Usr::cookie_verify(req,res))
+                return;
 
             BackupInfo info;
             data->GetOneByURL(req.path, &info);
@@ -215,14 +257,41 @@ namespace Cloud
             return;
         }
 
+        static void Login(const httplib::Request& req,httplib::Response& res)
+        {
+
+            std::string username = req.get_param_value("username");
+            std::string password = req.get_param_value("password");
+
+            if(Usr::verify(username,password))
+            {
+                // 设置 Cookie
+                std::string cookie_username = "username=" + username;
+                std::string cookie_password = " password=" + password;
+
+                res.set_header("Set-Cookie", cookie_password);
+                res.set_header("Set-Cookie", cookie_username);
+               
+
+                // 返回成功响应
+                res.set_content("success", "text/plain");
+                return;
+            }
+
+            res.set_content("false", "text/plain");
+            return;
+        }
+
         void RunModule()
         {
             svr_.Post("/Upload", Upload);
+            svr_.Post("/Login", Login);
 
             svr_.Get("/", index);
             svr_.Get("/index.html", index);
             svr_.Get("/listshow", ListShow);
             svr_.Get("/upload.html", index);
+            svr_.Get("/login.html", index);
 
             std::string download_url = url_prefix_ + "(.*)";
             svr_.Get(download_url, Download);

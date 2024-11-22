@@ -1,5 +1,6 @@
 #include "config.hpp"
-#include "data.hpp"
+//#include "data.hpp"
+#include "data_text.hpp"
 #include "hot.hpp"
 
 #include "server.hpp"
@@ -21,12 +22,12 @@ void HotTest()
 }
 
 
-
 int main()
 {
     data = new Cloud::DataManager();
+
     std::thread thread_hot_manager(HotTest);
-	std::thread thread_service(ServiceTest);
+    std::thread thread_service(ServiceTest);
 
     thread_hot_manager.join();
     thread_service.join();

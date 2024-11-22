@@ -1,37 +1,49 @@
-<html>
+<!DOCTYPE html>
+<html lang="zh">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>简单的HTML页面</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
+    <title>文件上传</title>
+    <script>
+        function uploadFile() {
+            const fileInput = document.getElementById('fileInput');
+            const formData = new FormData();
 
-        h1 {
-            color: #333;
-        }
+            // 检查是否选择了文件
+            if (fileInput.files.length === 0) {
+                alert("请先选择一个文件！");
+                return;
+            }
 
-        p {
-            font-size: 16px;
-            line-height: 1.5;
-        }
+            // 将文件添加到 FormData 对象中
+            formData.append("file", fileInput.files[0]);
 
-        a {
-            color: blue;
+            // 使用 Fetch API 发送 POST 请求
+            fetch('/Upload', {
+                method: 'POST',
+                body: formData,
+            })
+                .then(response => {
+                    if (response.ok) {
+                        return response.text();
+                    }
+                    throw new Error('上传失败');
+                })
+                .then(data => {
+                    alert("上传成功: " + data);
+                })
+                .catch(error => {
+                    alert("错误: " + error.message);
+                });
         }
-    </style>
+    </script>
 </head>
 
 <body>
-    <form action="http://123.60.163.45:8888/Upload" method="post" enctype="multipart/form-data">
-        <div>
-            <input type="file" name="file">
-        </div>
-        <div><input type="submit" value="上传"></div>
-    </form>
+    <h1>文件上传</h1>
+    <input type="file" id="fileInput" accept="*/*">
+    <button onclick="uploadFile()">上传文件</button>
 </body>
 
 </html>
