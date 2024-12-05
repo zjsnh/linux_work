@@ -127,7 +127,7 @@ private:
     }
 
     ThreadPool(const ThreadPool<T> &) = delete;
-    const ThreadPool<T> &operator=(const ThreadPool<T> &) = delete; 
+    const ThreadPool<T> &operator=(const ThreadPool<T> &p) = delete; 
 private:
 
     std::vector<threads_> Thread_;

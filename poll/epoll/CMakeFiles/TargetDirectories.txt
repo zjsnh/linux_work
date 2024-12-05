@@ -1,0 +1,3 @@
+/home/zws/linux_work/poll/epoll/CMakeFiles/rebuild_cache.dir
+/home/zws/linux_work/poll/epoll/CMakeFiles/edit_cache.dir
+/home/zws/linux_work/poll/epoll/CMakeFiles/text.dir
