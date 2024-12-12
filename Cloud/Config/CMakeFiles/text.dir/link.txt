@@ -1,0 +1,1 @@
+/opt/rh/devtoolset-7/root/usr/bin/c++     CMakeFiles/text.dir/code.cpp.o  -o text   -L/home/zws/linux_work/Cloud/Config/lib  -L/usr/lib64/mysql  -L/home/zws/linux_work/Cloud/Config/Lib  -Wl,-rpath,/home/zws/linux_work/Cloud/Config/lib:/usr/lib64/mysql:/home/zws/linux_work/Cloud/Config/Lib -lmysqlclient -lstdc++fs -lpthread -lbundle -ljsoncpp 

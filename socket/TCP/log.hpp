@@ -43,13 +43,13 @@ class log
             char left_msg[SIZE];
             snprintf(left_msg, sizeof(left_msg), "[%s][%d-%d-%d %d:%d:%d]",log_level(level).c_str(), 
                     ctime->tm_year + 1900, ctime->tm_mon + 1, ctime->tm_mday,
-                    ctime->tm_hour, ctime->tm_min, ctime->tm_sec);
+                    ctime->tm_hour, ctime->tm_min, ctime->tm_sec);  //主要就是处理 ... 不用va_list处理参数
 
             va_list ap;
             va_start(ap, format);
             char right_msg[SIZE];
 
-            vsnprintf(right_msg, sizeof(right_msg), format, ap);
+            vsnprintf(right_msg, sizeof(right_msg), format, ap); // 使用 va_list处理参数
             va_end(ap);
 
             char msg[SIZE * 2];

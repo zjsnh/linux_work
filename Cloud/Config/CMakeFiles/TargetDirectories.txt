@@ -1,0 +1,3 @@
+/home/zws/linux_work/Cloud/Config/CMakeFiles/rebuild_cache.dir
+/home/zws/linux_work/Cloud/Config/CMakeFiles/edit_cache.dir
+/home/zws/linux_work/Cloud/Config/CMakeFiles/text.dir

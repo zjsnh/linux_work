@@ -7,13 +7,13 @@ using namespace std;
 void my_signal(int sign)
 {
     cout << "signal 2 " << sign << endl;
-    alarm(3);
+    //alarm(3);
 }
 
 int main()
 {
     signal(SIGALRM, my_signal);
-    alarm(3);
+    alarm(3);  //计时器
     
     while(1)
     {
