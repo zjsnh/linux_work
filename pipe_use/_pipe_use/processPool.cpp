@@ -11,6 +11,8 @@ using namespace std;
 
 #define process_num 5
 
+//进程池
+
 //描述
 class channel
 {

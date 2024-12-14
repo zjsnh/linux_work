@@ -7,6 +7,9 @@ using namespace std;
 #include <sys/types.h>
 #include<string.h>
 
+
+//使用进程 程序替换
+
 #define MSG_SIZE 7
 #define processnum 5
 // 描述
@@ -73,7 +76,7 @@ void InitPrcoess(std::vector<channel>& channels)
     for (int i = 0; i < processnum; i++) // 使用 processnum
     {
         int pipefd[2] = {0};
-        if (pipe(pipefd) == -1) {
+        if (pipe(pipefd) == -1) {   //匿名管道
             perror("pipe failed");
             return;
         }

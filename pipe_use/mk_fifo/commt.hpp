@@ -21,7 +21,7 @@ class Init
     public:
         Init()
         {
-            int n = mkfifo(FIFO_FILE, 0664);
+            int n = mkfifo(FIFO_FILE, 0664); //命名管道
             if(n < 0)
             {
                 perror("file create fail:");
