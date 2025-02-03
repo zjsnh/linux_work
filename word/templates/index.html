@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>考研单词</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+  <div id="loading">
+    <div class="progress-ring"></div>
+  </div>
+
+  <header class="header">
+    <h1 class="header-title">考研词汇</span></h1>
+    <div class="header-subtitle">每日精选词汇</div>
+  </header>
+
+  <main class="container">
+    <!-- 查找功能区域 -->
+    <section class="spell-section">
+      <div class="input-group">
+        <input type="text" id="search-input" class="ios-input" placeholder="输入要查找的单词" autocapitalize="none">
+        <button id="search-btn" class="ios-button">
+          <span class="button-icon">􀊫</span>
+          <span class="button-text">查找</span>
+        </button>
+      </div>
+      <div id="search-feedback" class="feedback-message"></div>
+    </section>
+
+    <!-- 单词卡片 -->
+    <article class="card" id="word-container">
+      <div class="card-content" id="word-content"></div>
+      <div class="card-controls">
+        <button id="prev-btn" class="ios-icon-button">
+          <span class="icon">􀆉</span>
+        </button>
+        <div class="page-indicator">
+          <span id="current-index">1</span>/<span id="total-count">500</span>
+        </div>
+        <button id="next-btn" class="ios-icon-button">
+          <span class="icon">􀆊</span>
+        </button>
+      </div>
+    </article>
+  </main>
+
+  <script>
+    let words = [];
+    let currentIndex = 0;
+    const wordContentDiv = document.getElementById('word-content');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const searchInput = document.getElementById('search-input');
+    const searchBtn = document.getElementById('search-btn');
+    const searchFeedback = document.getElementById('search-feedback');
+
+    // 渲染单词
+    function renderWord(index) {
+      if (index < 0 || index >= words.length) return;
+      
+      wordContentDiv.classList.add('fade-out');
+      
+      setTimeout(() => {
+        const word = words[index];
+        let html = `<div class="word-entry"><h3>${word.head_word}</h3>`;
+        
+        // 翻译
+        if (word.translations?.length > 0) {
+          html += '<div class="section"><strong>翻译</strong>';
+          word.translations.forEach(trans => {
+            html += `<div class="translation">${trans.tranCn} <em>(${trans.descCn})</em></div>`;
+          });
+          html += '</div>';
+        }
+
+        // 例句
+        if (word.sentences?.length > 0) {
+          html += '<div class="section"><strong>例句</strong>';
+          word.sentences.forEach(sen => {
+            html += `<div class="sentence">${sen.content} <em>(${sen.cn})</em></div>`;
+          });
+          html += '</div>';
+        }
+
+        // 短语
+        if (word.phrases?.length > 0) {
+          html += '<div class="section"><strong>短语</strong>';
+          word.phrases.forEach(phrase => {
+            html += `<div class="phrase">${phrase.content} <em>(${phrase.cn})</em></div>`;
+          });
+          html += '</div>';
+        }
+
+        html += '</div>';
+        wordContentDiv.innerHTML = html;
+        wordContentDiv.classList.remove('fade-out');
+        wordContentDiv.classList.add('fade-in');
+      }, 300);
+    }
+
+    // 更新按钮状态
+    function updateButtons() {
+      prevBtn.disabled = currentIndex === 0;
+      nextBtn.disabled = currentIndex === words.length - 1;
+      document.getElementById('current-index').textContent = currentIndex + 1;
+    }
+
+    // 上一页
+    prevBtn.addEventListener('click', () => {
+      if (currentIndex > 0) {
+        currentIndex--;
+        renderWord(currentIndex);
+        updateButtons();
+      }
+    });
+
+    // 下一页
+    nextBtn.addEventListener('click', () => {
+      if (currentIndex < words.length - 1) {
+        currentIndex++;
+        renderWord(currentIndex);
+        updateButtons();
+      }
+    });
+
+    // 查找功能
+    searchBtn.addEventListener('click', () => {
+      const keyword = searchInput.value.trim().toLowerCase();
+      if (!keyword) {
+        showFeedback("⚠️ 请输入要查找的单词", "warning");
+        return;
+      }
+
+      const foundIndex = words.findIndex(word => 
+        word.head_word.toLowerCase() === keyword
+      );
+
+      if (foundIndex !== -1) {
+        currentIndex = foundIndex;
+        renderWord(currentIndex);
+        updateButtons();
+        showFeedback(`✅ 已定位到单词：${words[currentIndex].head_word}`, "success");
+        document.getElementById('word-container').scrollIntoView({ behavior: 'smooth' });
+      } else {
+        showFeedback("❌ 未找到该单词", "error");
+      }
+      searchInput.value = "";
+    });
+
+    // 显示反馈消息
+    function showFeedback(message, type) {
+      searchFeedback.textContent = message;
+      searchFeedback.className = `feedback-message ${type}`;
+      searchFeedback.style.opacity = 1;
+      
+      setTimeout(() => {
+        searchFeedback.style.opacity = 0;
+      }, 3000);
+    }
+
+    // 初始化加载
+    fetch('/get_words')
+      .then(response => response.json())
+      .then(data => {
+        words = data;
+        document.getElementById('total-count').textContent = words.length;
+        if (words.length > 0) {
+          renderWord(0);
+          updateButtons();
+        }
+        document.getElementById('loading').style.display = 'none';
+      })
+      .catch(error => {
+        console.error('加载失败:', error);
+        document.getElementById('loading').style.display = 'none';
+      });
+  </script>
+</body>
+</html>
