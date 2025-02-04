@@ -9,174 +9,254 @@
 </head>
 <body>
   <div id="loading">
-    <div class="progress-ring"></div>
+    <div class="skeleton-card">
+      <div class="skeleton-line"></div>
+      <div class="skeleton-line"></div>
+      <div class="skeleton-line"></div>
+    </div>
   </div>
 
   <header class="header">
-    <h1 class="header-title">考研词汇</span></h1>
-    <div class="header-subtitle">每日精选词汇</div>
+    <h1 class="header-title">考研词汇 <span class="header-icon">📚</span></h1>
+    <div class="header-subtitle">已收录<span id="total-count">0</span>个高频词汇</div>
   </header>
 
   <main class="container">
-    <!-- 查找功能区域 -->
-    <section class="spell-section">
+    <section class="search-section">
       <div class="input-group">
-        <input type="text" id="search-input" class="ios-input" placeholder="输入要查找的单词" autocapitalize="none">
+        <input type="text" id="search-input" class="ios-input" 
+               placeholder="输入单词或释义" 
+               autocapitalize="none"
+               autofocus
+               onkeyup="handleSearchInput(event)">
         <button id="search-btn" class="ios-button">
-          <span class="button-icon">􀊫</span>
-          <span class="button-text">查找</span>
+          <i class="fas fa-search"></i>
+          <span class="button-text">智能搜索</span>
         </button>
       </div>
       <div id="search-feedback" class="feedback-message"></div>
     </section>
 
-    <!-- 单词卡片 -->
     <article class="card" id="word-container">
-      <div class="card-content" id="word-content"></div>
+      <div class="card-content" id="word-content">
+        <div class="skeleton-content">
+          <div class="skeleton-line wide"></div>
+          <div class="skeleton-line"></div>
+          <div class="skeleton-line medium"></div>
+          <div class="skeleton-line"></div>
+        </div>
+      </div>
+      
       <div class="card-controls">
-        <button id="prev-btn" class="ios-icon-button">
-          <span class="icon">􀆉</span>
+        <button id="prev-btn" class="ios-icon-button" title="上一个">
+          <i class="fas fa-chevron-left"></i>
         </button>
         <div class="page-indicator">
-          <span id="current-index">1</span>/<span id="total-count">500</span>
+          <span id="current-index">0</span>/<span id="total-count">0</span>
         </div>
-        <button id="next-btn" class="ios-icon-button">
-          <span class="icon">􀆊</span>
+        <button id="next-btn" class="ios-icon-button" title="下一个">
+          <i class="fas fa-chevron-right"></i>
         </button>
       </div>
     </article>
   </main>
 
   <script>
-    let words = [];
-    let currentIndex = 0;
-    const wordContentDiv = document.getElementById('word-content');
-    const prevBtn = document.getElementById('prev-btn');
-    const nextBtn = document.getElementById('next-btn');
-    const searchInput = document.getElementById('search-input');
-    const searchBtn = document.getElementById('search-btn');
-    const searchFeedback = document.getElementById('search-feedback');
+    class WordManager {
+      constructor() {
+        this.words = []
+        this.currentIndex = 0
+        this.searchTerm = ''
+        this.debounceTimer = null
+      }
 
-    // 渲染单词
-    function renderWord(index) {
-      if (index < 0 || index >= words.length) return;
-      
-      wordContentDiv.classList.add('fade-out');
-      
-      setTimeout(() => {
-        const word = words[index];
-        let html = `<div class="word-entry"><h3>${word.head_word}</h3>`;
+      async loadWords() {
+        try {
+          const response = await fetch('/get_words')
+          if (!response.ok) throw new Error(`HTTP错误 ${response.status}`)
+          this.words = await response.json()
+          document.getElementById('total-count').textContent = this.words.length
+          this.renderWord(0)
+          this.setupEventListeners()
+        } catch (error) {
+          this.showFeedback(`❌ 数据加载失败: ${error.message}`, 'error')
+        } finally {
+          document.getElementById('loading').style.display = 'none'
+        }
+      }
+
+      renderWord(index) {
+        try {
+          if (index < 0 || index >= this.words.length) return
+          
+          const word = this.words[index]
+          let html = `
+            <div class="word-header">
+              <h3>${this.highlightText(word.head_word)}</h3>
+              <div class="word-meta">
+                ${word.usphone ? `
+                  <span class="phonetic">
+                    美音: /${word.usphone}/
+                    <button class="pronounce-btn" data-word="${word.head_word}" data-type="0">
+                      <i class="fas fa-volume-up"></i>
+                    </button>
+                  </span>
+                ` : ''}
+                ${word.ukphone ? `
+                  <span class="phonetic">
+                    英音: /${word.ukphone}/
+                    <button class="pronounce-btn" data-word="${word.head_word}" data-type="1">
+                      <i class="fas fa-volume-up"></i>
+                    </button>
+                  </span>
+                ` : ''}
+              </div>
+            </div>`
+
+          if (word.translations?.length) {
+            html += `<div class="section">
+              <h4><i class="fas fa-language"></i> 翻译</h4>
+              ${word.translations.map(trans => `
+                <div class="translation">
+                  <span class="pos">[${trans.pos}]</span>
+                  ${this.highlightText(trans.tranCn)}
+                  ${trans.descCn ? `<div class="desc">${trans.descCn}</div>` : ''}
+                </div>`).join('')}
+            </div>`
+          }
+
+          if (word.sentences?.length) {
+            html += `<div class="section">
+              <h4><i class="fas fa-comment-dots"></i> 例句</h4>
+              ${word.sentences.map(sen => `
+                <div class="sentence">
+                  <div class="en">${this.highlightText(sen.content)}</div>
+                  <div class="cn">${sen.cn}</div>
+                </div>`).join('')}
+            </div>`
+          }
+
+          if (word.phrases?.length) {
+            html += `<div class="section">
+              <h4><i class="fas fa-link"></i> 短语</h4>
+              ${word.phrases.map(phrase => `
+                <div class="phrase">
+                  <span class="phrase-en">${this.highlightText(phrase.content)}</span>
+                  <span class="phrase-cn">${phrase.cn}</span>
+                </div>`).join('')}
+            </div>`
+          }
+
+          document.getElementById('word-content').innerHTML = html
+          this.currentIndex = index
+          this.updateControls()
+          this.setupAudioListeners()
+        } catch (error) {
+          console.error('渲染错误:', error)
+          this.showFeedback('⚠️ 内容渲染异常，请刷新页面', 'warning')
+        }
+      }
+
+      setupAudioListeners() {
+        document.querySelectorAll('.pronounce-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const word = e.target.closest('button').dataset.word
+            const type = e.target.closest('button').dataset.type
+            this.playPronunciation(word, type, e.target.closest('button'))
+          })
+        })
+      }
+
+      playPronunciation(word, type, button) {
+        const originalHTML = button.innerHTML
+        button.innerHTML = '<i class="fas fa-spinner fa-pulse"></i>'
+        button.disabled = true
+
+        const audioUrl = `http://dict.youdao.com/dictvoice?type=${type}&audio=${encodeURIComponent(word)}`
+        const audio = new Audio(audioUrl)
+
+        audio.addEventListener('canplaythrough', () => {
+          button.innerHTML = originalHTML
+          button.disabled = false
+          audio.play()
+        })
+
+        audio.addEventListener('error', () => {
+          button.innerHTML = '<i class="fas fa-exclamation-triangle"></i>'
+          button.disabled = true
+          setTimeout(() => {
+            button.innerHTML = originalHTML
+            button.disabled = false
+          }, 2000)
+          this.showFeedback('⚠️ 发音加载失败', 'warning')
+        })
+      }
+
+      highlightText(text) {
+        if (!this.searchTerm) return text
+        const regex = new RegExp(`(${this.searchTerm})`, 'gi')
+        return text.replace(regex, '<mark class="highlight">$1</mark>')
+      }
+
+      setupEventListeners() {
+        document.getElementById('prev-btn').addEventListener('click', () => {
+          if (this.currentIndex > 0) this.renderWord(--this.currentIndex)
+        })
+
+        document.getElementById('next-btn').addEventListener('click', () => {
+          if (this.currentIndex < this.words.length - 1) this.renderWord(++this.currentIndex)
+        })
+
+        document.getElementById('search-btn').addEventListener('click', () => this.handleSearch())
+      }
+
+      handleSearchInput(event) {
+        if (event.key === 'Enter') this.handleSearch()
+        clearTimeout(this.debounceTimer)
+        this.debounceTimer = setTimeout(() => this.handleSearch(), 300)
+      }
+
+      handleSearch() {
+        const input = document.getElementById('search-input')
+        this.searchTerm = input.value.trim().toLowerCase()
         
-        // 翻译
-        if (word.translations?.length > 0) {
-          html += '<div class="section"><strong>翻译</strong>';
-          word.translations.forEach(trans => {
-            html += `<div class="translation">${trans.tranCn} <em>(${trans.descCn})</em></div>`;
-          });
-          html += '</div>';
+        if (!this.searchTerm) {
+          this.showFeedback("🔍 输入关键词开始搜索", 'info')
+          return
         }
 
-        // 例句
-        if (word.sentences?.length > 0) {
-          html += '<div class="section"><strong>例句</strong>';
-          word.sentences.forEach(sen => {
-            html += `<div class="sentence">${sen.content} <em>(${sen.cn})</em></div>`;
-          });
-          html += '</div>';
-        }
+        const results = this.words.filter(word => 
+          word.head_word.toLowerCase().includes(this.searchTerm) ||
+          word.translations.some(t => t.tranCn.includes(this.searchTerm)) ||
+          word.sentences.some(s => s.content.toLowerCase().includes(this.searchTerm))
+        )
 
-        // 短语
-        if (word.phrases?.length > 0) {
-          html += '<div class="section"><strong>短语</strong>';
-          word.phrases.forEach(phrase => {
-            html += `<div class="phrase">${phrase.content} <em>(${phrase.cn})</em></div>`;
-          });
-          html += '</div>';
+        if (results.length) {
+          this.words = results
+          this.renderWord(0)
+          this.showFeedback(`✅ 找到 ${results.length} 个匹配结果`, 'success')
+        } else {
+          this.showFeedback("❌ 未找到匹配内容，尝试其他关键词", 'error')
         }
+      }
 
-        html += '</div>';
-        wordContentDiv.innerHTML = html;
-        wordContentDiv.classList.remove('fade-out');
-        wordContentDiv.classList.add('fade-in');
-      }, 300);
+      updateControls() {
+        document.getElementById('current-index').textContent = this.currentIndex + 1
+        document.getElementById('prev-btn').disabled = this.currentIndex === 0
+        document.getElementById('next-btn').disabled = this.currentIndex === this.words.length - 1
+      }
+
+      showFeedback(message, type) {
+        const feedback = document.getElementById('search-feedback')
+        feedback.className = `feedback-message ${type}`
+        feedback.textContent = message
+        feedback.style.opacity = 1
+        setTimeout(() => feedback.style.opacity = 0, 3000)
+      }
     }
 
-    // 更新按钮状态
-    function updateButtons() {
-      prevBtn.disabled = currentIndex === 0;
-      nextBtn.disabled = currentIndex === words.length - 1;
-      document.getElementById('current-index').textContent = currentIndex + 1;
-    }
-
-    // 上一页
-    prevBtn.addEventListener('click', () => {
-      if (currentIndex > 0) {
-        currentIndex--;
-        renderWord(currentIndex);
-        updateButtons();
-      }
-    });
-
-    // 下一页
-    nextBtn.addEventListener('click', () => {
-      if (currentIndex < words.length - 1) {
-        currentIndex++;
-        renderWord(currentIndex);
-        updateButtons();
-      }
-    });
-
-    // 查找功能
-    searchBtn.addEventListener('click', () => {
-      const keyword = searchInput.value.trim().toLowerCase();
-      if (!keyword) {
-        showFeedback("⚠️ 请输入要查找的单词", "warning");
-        return;
-      }
-
-      const foundIndex = words.findIndex(word => 
-        word.head_word.toLowerCase() === keyword
-      );
-
-      if (foundIndex !== -1) {
-        currentIndex = foundIndex;
-        renderWord(currentIndex);
-        updateButtons();
-        showFeedback(`✅ 已定位到单词：${words[currentIndex].head_word}`, "success");
-        document.getElementById('word-container').scrollIntoView({ behavior: 'smooth' });
-      } else {
-        showFeedback("❌ 未找到该单词", "error");
-      }
-      searchInput.value = "";
-    });
-
-    // 显示反馈消息
-    function showFeedback(message, type) {
-      searchFeedback.textContent = message;
-      searchFeedback.className = `feedback-message ${type}`;
-      searchFeedback.style.opacity = 1;
-      
-      setTimeout(() => {
-        searchFeedback.style.opacity = 0;
-      }, 3000);
-    }
-
-    // 初始化加载
-    fetch('/get_words')
-      .then(response => response.json())
-      .then(data => {
-        words = data;
-        document.getElementById('total-count').textContent = words.length;
-        if (words.length > 0) {
-          renderWord(0);
-          updateButtons();
-        }
-        document.getElementById('loading').style.display = 'none';
-      })
-      .catch(error => {
-        console.error('加载失败:', error);
-        document.getElementById('loading').style.display = 'none';
-      });
+    const wordApp = new WordManager()
+    window.addEventListener('DOMContentLoaded', () => wordApp.loadWords())
   </script>
 </body>
 </html>
