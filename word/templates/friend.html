@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>婚介所</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <!-- 返回首页按钮 -->
+  <a href="{{ url_for('index') }}" class="back-home-btn">返回首页</a>
+
+  <section class="friend-container">
+    <h1>👥 单身狗列表</h1>
+
+    <!-- 显示朋友列表 -->
+    <div id="friends-list" class="friend-grid"></div>
+
+    <h2>➕ 添加单身狗</h2>
+    
+    <!-- 鼠标悬浮时显示输入表单 -->
+    <div class="add-friend-container">
+      <input type="text" id="name" placeholder="姓名">
+      <input type="number" id="age" placeholder="年龄">
+      <input type="text" id="hobbies" placeholder="爱好（用逗号分隔）">
+      <button onclick="addFriend()" class="small-btn">添加</button>
+    </div>
+
+  </section>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

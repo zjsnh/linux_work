@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>考研单词 - 每日单词</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <!-- 引入 Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+  <section id="daily-section" class="page-section">
+    <div class="nav-bar">
+      <a href="{{ url_for('index') }}" class="nav-btn"><i class="fas fa-arrow-left"></i> 返回首页</a>
+    </div>
+    <h2>每日单词</h2>
+    <button onclick="loadDailyAndCache()" class="action-btn daily-refresh"><i class="fas fa-sync"></i> 刷新每日单词</button>
+    <div id="daily-list" class="word-grid"></div>
+    <div id="daily-page-info" class="page-info"></div>
+  </section>
+
+  <!-- 单词详情弹窗（用于每日单词卡片点击） -->
+  <div id="detail-overlay" class="detail-overlay" style="display:none;"></div>
+
+  <script>
+    async function loadDailyAndCache() {
+      const res = await fetch('/get_daily');
+      const data = await res.json();
+      window.dailyWordsData = data.words; // 缓存数据以供详情使用
+      renderDaily(data);
+    }
+    function renderDaily(data) {
+      const dailyList = document.getElementById('daily-list');
+      dailyList.innerHTML = data.words.map((word, index) => `
+        <div class="word-card" data-index="${index}" onclick="openDetail(${index})">
+          <h3>${word.head_word}</h3>
+          <p>美音: /${word.usphone}/ <button class="pronounce-btn" onclick="playPronunciation('${word.head_word}',0,event)">🔊</button></p>
+          <p>英音: /${word.ukphone}/ <button class="pronounce-btn" onclick="playPronunciation('${word.head_word}',1,event)">🔊</button></p>
+          <p>释义: ${word.basic_meaning}</p>
+        </div>
+      `).join("");
+      document.getElementById('daily-page-info').innerHTML = `当前随机页：${data.page} / 共 ${data.total_pages} 页`;
+    }
+    // 详情弹窗显示
+    function openDetail(index) {
+      const word = window.dailyWordsData[index];
+      const detailHTML = `
+        <div class="word-detail">
+          <button onclick="closeDetail()" class="close-btn">×</button>
+          <h2>${word.head_word}</h2>
+          <p>
+            美音: /${word.usphone}/ 
+            <button class="pronounce-btn" onclick="playPronunciation('${word.head_word}',0,event)">🔊</button>
+          </p>
+          <p>
+            英音: /${word.ukphone}/ 
+            <button class="pronounce-btn" onclick="playPronunciation('${word.head_word}',1,event)">🔊</button>
+          </p>
+          <div class="detail-section">
+            <h3>释义</h3>
+            ${word.translations && word.translations.length ? word.translations.map(trans => `
+              <div class="translation">
+                <span class="pos">[${trans.pos || ''}]</span>
+                ${trans.tranCn || ''}
+                ${trans.descCn ? `<div class="desc">${trans.descCn}</div>` : ''}
+              </div>
+            `).join('') : '<p>暂无释义</p>'}
+          </div>
+          <div class="detail-section">
+            <h3>例句</h3>
+            ${word.sentences && word.sentences.length ? word.sentences.map(sen => `
+              <div class="sentence">
+                <p class="en">${sen.content}</p>
+                <p class="cn">${sen.cn}</p>
+              </div>
+            `).join('') : '<p>暂无例句</p>'}
+          </div>
+          <div class="detail-section">
+            <h3>短语</h3>
+            ${word.phrases && word.phrases.length ? word.phrases.map(ph => `
+              <div class="phrase">
+                <p class="phrase-en">${ph.content}</p>
+                <p class="phrase-cn">${ph.cn}</p>
+              </div>
+            `).join('') : '<p>暂无短语</p>'}
+          </div>
+        </div>
+      `;
+      const overlay = document.getElementById("detail-overlay");
+      overlay.innerHTML = detailHTML;
+      overlay.style.display = "flex";
+      overlay.classList.add("overlay-enter");
+      setTimeout(() => { overlay.classList.remove("overlay-enter"); }, 300);
+    }
+    function closeDetail() {
+      const overlay = document.getElementById("detail-overlay");
+      overlay.classList.add("overlay-exit");
+      setTimeout(() => {
+        overlay.style.display = "none";
+        overlay.classList.remove("overlay-exit");
+        overlay.innerHTML = "";
+      }, 300);
+    }
+    // 发音调用有道接口
+    function playPronunciation(word, type, event) {
+      event.stopPropagation();
+      const audioUrl = `http://dict.youdao.com/dictvoice?type=${type}&audio=${encodeURIComponent(word)}`;
+      const audio = new Audio(audioUrl);
+      audio.play();
+    }
+    // 页面初次加载时调用
+    loadDailyAndCache();
+  </script>
+</body>
+</html>

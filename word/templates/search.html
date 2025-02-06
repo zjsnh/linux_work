@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>考研单词 - 单词搜索</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <!-- 引入 Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+  <section id="search-section" class="page-section">
+    <div class="nav-bar">
+      <a href="{{ url_for('index') }}" class="nav-btn"><i class="fas fa-arrow-left"></i> 返回首页</a>
+    </div>
+    <h2>单词搜索</h2>
+    <div class="search-box">
+      <input type="text" id="search-input" placeholder="请输入单词关键字">
+      <button onclick="doSearch()" class="search-btn">搜索</button>
+    </div>
+    <div id="search-result" class="search-result"></div>
+  </section>
+  
+  <script>
+    async function doSearch() {
+      const query = document.getElementById('search-input').value.trim();
+      if (!query) return;
+      const res = await fetch(`/search_word?query=${encodeURIComponent(query)}`);
+      const data = await res.json();
+      const resultDiv = document.getElementById('search-result');
+      if (data.result) {
+        const word = data.result;
+        resultDiv.innerHTML = `
+          <div class="word-detail-card">
+            <h2>${word.head_word}</h2>
+            <p>
+              美音: /${word.usphone}/ 
+              <button class="pronounce-btn" onclick="playPronunciation('${word.head_word}',0,event)">🔊</button>
+            </p>
+            <p>
+              英音: /${word.ukphone}/ 
+              <button class="pronounce-btn" onclick="playPronunciation('${word.head_word}',1,event)">🔊</button>
+            </p>
+            <div class="detail-section">
+              <h3>释义</h3>
+              ${word.translations && word.translations.length ? word.translations.map(trans => `
+                <div class="translation">
+                  <span class="pos">[${trans.pos || ''}]</span>
+                  ${trans.tranCn || ''}
+                  ${trans.descCn ? `<div class="desc">${trans.descCn}</div>` : ''}
+                </div>
+              `).join('') : '<p>暂无释义</p>'}
+            </div>
+            <div class="detail-section">
+              <h3>例句</h3>
+              ${word.sentences && word.sentences.length ? word.sentences.map(sen => `
+                <div class="sentence">
+                  <p class="en">${sen.content}</p>
+                  <p class="cn">${sen.cn}</p>
+                </div>
+              `).join('') : '<p>暂无例句</p>'}
+            </div>
+            <div class="detail-section">
+              <h3>短语</h3>
+              ${word.phrases && word.phrases.length ? word.phrases.map(ph => `
+                <div class="phrase">
+                  <p class="phrase-en">${ph.content}</p>
+                  <p class="phrase-cn">${ph.cn}</p>
+                </div>
+              `).join('') : '<p>暂无短语</p>'}
+            </div>
+          </div>
+        `;
+      } else {
+        resultDiv.innerHTML = `<p>未找到匹配单词</p>`;
+      }
+    }
+    
+    // 发音调用有道接口
+    function playPronunciation(word, type, event) {
+      event.stopPropagation();
+      const audioUrl = `http://dict.youdao.com/dictvoice?type=${type}&audio=${encodeURIComponent(word)}`;
+      const audio = new Audio(audioUrl);
+      audio.play();
+    }
+  </script>
+</body>
+</html>

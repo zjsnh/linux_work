@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>随机数生成器 1-5</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+        .random-number {
+            font-size: 5rem;
+            color: #2c3e50;
+            background-color: #ffffff;
+            padding: 20px 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="random-number" id="numberContainer">?</div>
+
+    <script>
+        // 生成1-5的随机整数
+        function generateRandomNumber() {
+            return Math.floor(Math.random() * 5) + 1;
+        }
+
+        // 更新页面显示
+        function updateNumber() {
+            const container = document.getElementById('numberContainer');
+            container.textContent = generateRandomNumber();
+        }
+
+        // 页面加载时立即显示
+        updateNumber();
+        
+        // 可选：点击页面重新生成
+        document.body.addEventListener('click', updateNumber);
+    </script>
+</body>
+</html>
