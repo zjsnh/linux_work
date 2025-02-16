@@ -20,39 +20,74 @@ def save_friends(friends):
     with open(FRIENDS_FILE, 'w', encoding='utf-8') as file:
         json.dump(friends, file, ensure_ascii=False, indent=2)
 
+# 打印请求信息
+def log_request_info():
+    # 获取客户端IP地址
+    client_ip = request.remote_addr
+    # 获取X-Forwarded-For信息（如果有代理）
+    x_forwarded_for = request.headers.get('X-Forwarded-For', 'N/A')
+    # 获取User-Agent
+    user_agent = request.headers.get('User-Agent', 'N/A')
+    # 获取Referer
+    referer = request.headers.get('Referer', 'N/A')
+    # 获取所有请求头
+    headers = dict(request.headers)
+
+    # 打印日志
+    print("\n===== 请求信息 =====")
+    print(f"客户端IP: {client_ip}")
+    print(f"X-Forwarded-For: {x_forwarded_for}")
+    print(f"User-Agent: {user_agent}")
+    print(f"Referer: {referer}")
+    print("请求头信息:")
+    for key, value in headers.items():
+        print(f"  {key}: {value}")
+    print("===================\n")
 
 # 渲染首页（介绍页）
 @app.route('/')
 def index():
+    log_request_info()
     return render_template('index.html')
 
 # 渲染单词搜索页面
 @app.route('/search')
 def search_page():
+    log_request_info()
     return render_template('search.html')
 
 # 渲染每日单词页面
 @app.route('/daily')
 def daily_page():
+    log_request_info()
     return render_template('daily.html')
 
 # 渲染好友页面
 @app.route('/friend')
 def friend_page():
+    log_request_info()
     return render_template('friend.html')
 
 @app.route('/random')
 def random_page():
+    log_request_info()
     return render_template('random.html')
+
+@app.route('/game')
+def game_page():
+    log_request_info()
+    return render_template('game.html')
 
 # 获取好友数据（返回 JSON）
 @app.route('/get_friends', methods=['GET'])
 def get_friends():
+    log_request_info()
     return jsonify(load_friends())
 
 # 添加好友
 @app.route('/add_friend', methods=['POST'])
 def add_friend():
+    log_request_info()
     data = request.json
     if not data or not all(k in data for k in ("name", "age", "hobbies")):
         return jsonify({"error": "缺少必要信息"}), 400
@@ -66,6 +101,7 @@ def add_friend():
 # 删除好友
 @app.route('/delete_friend', methods=['POST'])
 def delete_friend():
+    log_request_info()
     data = request.json
     name_to_delete = data.get("name")
 
@@ -78,6 +114,7 @@ def delete_friend():
 # 分页获取单词数据，每页20个（用于每日单词页面等）
 @app.route('/get_words', methods=['GET'])
 def get_words():
+    log_request_info()
     page = int(request.args.get('page', 1))
     page_size = 20
     start = (page - 1) * page_size
@@ -146,6 +183,7 @@ def get_words():
 # 搜索接口：根据 query 返回第一个匹配到的完整单词信息
 @app.route('/search_word', methods=['GET'])
 def search_word():
+    log_request_info()
     query = request.args.get('query', '').strip()
     file_path = 'KaoYan_2.json'
     try:
@@ -193,6 +231,7 @@ def search_word():
 # 每日单词接口：随机返回一个包含20个单词的页面
 @app.route('/get_daily', methods=['GET'])
 def get_daily():
+    log_request_info()
     file_path = 'KaoYan_2.json'
     try:
         with open(file_path, 'r', encoding='utf-8') as file:

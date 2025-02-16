@@ -2,28 +2,82 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=2.0">
-  <title>考研单词 - 欢迎</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>考研词汇 - 数字学习平台</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-  <!-- 引入 Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
+  <!-- 主内容区 -->
   <section id="landing-section" class="page-section">
-    <div class="intro">
-      <h1>欢迎来到考研词汇</h1>
-      <p>This website is committed to providing an efficient and elegant postgraduate vocabulary learning experience, inspired by the minimalist design that has not yet been thought of. You can look up the details of any word with the "Word Search" or click on the "Word of the Day" to get 20 randomly selected words.</p>
+    <div class="hero-section">
+      <h1 class="hero-title">考研词汇 <span class="version-badge">Pro</span></h1>
+      <p class="hero-subtitle">探索高效优雅的英语学习方式</p>
     </div>
-    <div class="actions">
-      <a href="{{ url_for('search_page') }}" class="action-btn">单词搜索</a>
-      <a href="{{ url_for('daily_page') }}" class="action-btn">每日单词</a>
-      <a href="{{ url_for('random_page') }}" class="action-btn">随机数</a>
-      <a href="https://github.com/zjsnh" target="_blank" class="github-btn">
-        <i class="fab fa-github"></i> GitHub 代码仓库
+
+    <!-- 功能卡片网格 -->
+    <div class="feature-grid">
+      <a href="{{ url_for('search_page') }}" class="feature-card">
+        <div class="card-icon blue-bg">
+          <i class="fas fa-search"></i>
+        </div>
+        <h3>智能搜索</h3>
+        <p>精确查找单词释义与用法</p>
+        <div class="card-arrow">
+          <i class="fas fa-chevron-right"></i>
+        </div>
       </a>
-      <a href="{{ url_for('friend_page') }}" class="hidden-btn">👥 朋友拷打</a>
+
+      <a href="{{ url_for('daily_page') }}" class="feature-card">
+        <div class="card-icon green-bg">
+          <i class="fas fa-calendar-day"></i>
+        </div>
+        <h3>每日推荐</h3>
+        <p>个性化每日学习计划</p>
+        <div class="card-arrow">
+          <i class="fas fa-chevron-right"></i>
+        </div>
+      </a>
+
+      <a href="{{ url_for('friend_page') }}" class="feature-card">
+        <div class="card-icon purple-bg">
+          <i class="fas fa-users"></i>
+        </div>
+        <h3>学习社区</h3>
+        <p>与研友共同进步</p>
+        <div class="card-arrow">
+          <i class="fas fa-chevron-right"></i>
+        </div>
+      </a>
+
+      <div class="stats-card">
+        <div class="stats-item">
+          <div class="stats-value">4533</div>
+          <div class="stats-label">核心词汇</div>
+        </div>
+        <div class="stats-item">
+          <div class="stats-value">99%</div>
+          <div class="stats-label">历年覆盖率</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 快捷操作栏 -->
+    <div class="quick-actions">
+      <a href="https://github.com/zjsnh/linux_work/tree/master/word" target="_blank" class="github-link">
+        <i class="fab fa-github"></i>
+        <span>项目源码</span>
+      </a>
+      <a href="{{ url_for('random_page') }}" class="fun-link">
+        <i class="fas fa-dice"></i>
+        <span>趣味工具</span>
+      </a>
+      <a href="{{ url_for('game_page') }}" class="fun-link">
+        <i class="fas fa-dice"></i>
+        <span>贪吃蛇</span>
+      </a>
     </div>
   </section>
-</body>
 
+</body>
 </html>
